@@ -1,16 +1,4 @@
 # PHISHING WEBSITE DETECTION USING XGBoost and RFM
-### MADE BY GROUP 24AI836 - [Sachin Kumar](https://www.linkedin.com/in/isachin2008/), [Satyam Mishra](https://www.linkedin.com/in/satyam091/), [Shivesh Shivam](https://www.linkedin.com/in/sudoshivesh/)
-```
-import fourthYearProject
-import PhishingWebsiteDetectionUsingXGBoostAndRFM
-class 24AI836{
-    public static void main(String[] args){
-        System.out.println("1. Sachin Kumar [Team Leader]");
-        System.out.println("2. Satyam Mishra [Team Member]");
-        System.out.println("3. Shivesh Shivam [Team Member]");
-    }
-}
-```
 
 ### Why This Project?
 Phishing poses a significant cybersecurity threat, causing financial losses and data breaches. Traditional methods are inadequate against sophisticated attacks. This project uses advanced machine learning techniques like XGBoost and Random Forests to automate and improve the detection of phishing websites, enhancing user protection and reducing manual identification errors.
@@ -133,3 +121,4 @@ We did 50 epochs, to get a good accuracy from the XGBoost model i.e. 86.7% for t
 From the obtained results of the above models, XGBoost & RFM Classifier has highest model performance of 86.7%. So the model is saved to the file 'XGBoostClassifier.pickle.dat'
 
 <hr/>
+
