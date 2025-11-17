@@ -1,0 +1,1480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced IP & Website Analysis Engine</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .search-tabs {
+            display: flex;
+            background: white;
+            border-radius: 15px 15px 0 0;
+            overflow: hidden;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 20px;
+            text-align: center;
+            background: #f8f9fa;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            background: white;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .search-section {
+            background: white;
+            padding: 30px;
+            border-radius: 0 0 15px 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 1rem;
+        }
+
+        .search-btn {
+            padding: 15px 25px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        .training-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .training-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .training-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .training-card.website {
+            border-left-color: #28a745;
+        }
+
+        .training-card.ip {
+            border-left-color: #007bff;
+        }
+
+        .training-name {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .training-desc {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .category-section {
+            margin: 25px 0 15px 0;
+            color: #333;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 8px;
+        }
+
+        .results-section {
+            display: block;
+        }
+
+        .result-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .website-card {
+            border-left: 5px solid #28a745;
+        }
+
+        .ip-card {
+            border-left: 5px solid #007bff;
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .website-name {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #28a745;
+        }
+
+        .ip-address {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #007bff;
+            font-family: 'Courier New', monospace;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .info-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .info-label {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .info-value {
+            color: #666;
+        }
+
+        .threat-analysis {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #ffc107;
+        }
+
+        .security-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .badge-safe { background: #d4edda; color: #155724; }
+        .badge-low { background: #d1ecf1; color: #0c5460; }
+        .badge-medium { background: #fff3cd; color: #856404; }
+        .badge-high { background: #f8d7da; color: #721c24; }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: white;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        .website-stats {
+            display: flex;
+            gap: 15px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            background: #e7f3ff;
+            padding: 10px 15px;
+            border-radius: 8px;
+            text-align: center;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        /* New Report Button Styles */
+        .report-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 4px solid #dc3545;
+        }
+
+        .report-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-right: 10px;
+            transition: background 0.3s ease;
+        }
+
+        .report-btn:hover {
+            background: #c82333;
+        }
+
+        .block-btn {
+            background: #ffc107;
+            color: #212529;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s ease;
+        }
+
+        .block-btn:hover {
+            background: #e0a800;
+        }
+
+        .report-form {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e1e5e9;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .form-textarea {
+            height: 100px;
+            resize: vertical;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .submit-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .submit-btn:hover {
+            background: #218838;
+        }
+
+        .cancel-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .cancel-btn:hover {
+            background: #5a6268;
+        }
+
+        .blocked-list {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 4px solid #dc3545;
+        }
+
+        .blocked-item {
+            background: #f8f9fa;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 4px solid #dc3545;
+        }
+
+        .download-btn {
+            background: #17a2b8;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .download-btn:hover {
+            background: #138496;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌐 Advanced IP & Website Analyzer</h1>
+            <p>Analyze IP addresses and famous websites - Comprehensive database</p>
+        </div>
+
+        <div class="search-tabs">
+            <button class="tab active" data-tab="ip">IP Address Analysis</button>
+            <button class="tab" data-tab="website">Website Analysis</button>
+            <button class="tab" data-tab="reports">📋 Reports & Blocked URLs</button>
+        </div>
+
+        <div class="search-section">
+            <!-- IP Analysis Tab -->
+            <div class="tab-content active" id="ipTab">
+                <div class="search-box">
+                    <input type="text" class="search-input" placeholder="Enter IP address (e.g., 8.8.8.8, 192.168.1.1)...">
+                    <button class="search-btn">Analyze IP</button>
+                </div>
+                
+                <div class="category-section">🎯 Training IP Database</div>
+                <div class="training-grid" id="ipTrainingGrid">
+                    <!-- IP training cards will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Website Analysis Tab -->
+            <div class="tab-content" id="websiteTab">
+                <div class="search-box">
+                    <input type="text" class="search-input" placeholder="Enter website domain (e.g., google.com, github.com)...">
+                    <button class="search-btn">Analyze Website</button>
+                </div>
+                
+                <div class="category-section">🌐 Famous Websites Database</div>
+                <div class="training-grid" id="websiteTrainingGrid">
+                    <!-- Website training cards will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Reports Tab -->
+            <div class="tab-content" id="reportsTab">
+                <div class="category-section">🚨 Reported & Blocked URLs</div>
+                <div class="blocked-list" id="blockedList">
+                    <!-- Blocked URLs will be displayed here -->
+                </div>
+                <button class="download-btn" onclick="downloadCSV()">📥 Download Blocked URLs CSV</button>
+            </div>
+        </div>
+
+        <div class="results-section" id="resultsSection">
+            <!-- Results will appear here -->
+        </div>
+    </div>
+
+    <script>
+        // Comprehensive IP Address Database (Original IPs)
+        const ipTrainingDatabase = {
+            // Google Services
+            '8.8.8.8': {
+                type: 'ip',
+                organization: 'Google LLC',
+                country: 'United States',
+                city: 'Mountain View',
+                isp: 'Google',
+                threat_level: 'Low',
+                asn: 'AS15169',
+                services: ['Public DNS', 'Recursive DNS', 'Anycast'],
+                location: 'California, USA',
+                reputation: 'Excellent',
+                ports_open: ['53/TCP', '53/UDP'],
+                usage: 'One of the most popular public DNS servers worldwide',
+                security_analysis: 'Trusted DNS resolver, encrypted options available',
+                recommendations: 'Safe for general use, consider DNS-over-HTTPS'
+            },
+            '8.8.4.4': {
+                type: 'ip',
+                organization: 'Google LLC',
+                country: 'United States',
+                city: 'Mountain View',
+                isp: 'Google',
+                threat_level: 'Low',
+                asn: 'AS15169',
+                services: ['Public DNS', 'Secondary DNS'],
+                location: 'California, USA',
+                reputation: 'Excellent',
+                usage: 'Google Public DNS secondary server'
+            },
+
+            // Cloudflare
+            '1.1.1.1': {
+                type: 'ip',
+                organization: 'Cloudflare, Inc.',
+                country: 'United States',
+                city: 'San Francisco',
+                isp: 'Cloudflare',
+                threat_level: 'Low',
+                asn: 'AS13335',
+                services: ['Public DNS', 'CDN', 'WAF'],
+                location: 'California, USA',
+                reputation: 'Excellent',
+                ports_open: ['53/TCP', '53/UDP', '80/TCP', '443/TCP'],
+                usage: 'Privacy-focused public DNS resolver',
+                security_analysis: 'Fast and secure DNS with privacy protection',
+                recommendations: 'Recommended for privacy-conscious users'
+            },
+
+            // Common Router IPs
+            '192.168.1.1': {
+                type: 'ip',
+                organization: 'Private Network',
+                country: 'Local',
+                city: 'Local Network',
+                isp: 'Local ISP',
+                threat_level: 'None',
+                asn: 'N/A',
+                services: ['Router Administration', 'DHCP', 'NAT'],
+                location: 'Your Local Network',
+                reputation: 'Safe',
+                ports_open: ['80/TCP', '443/TCP', '22/TCP', '23/TCP'],
+                usage: 'Default gateway for most home routers',
+                security_analysis: 'Local network device, external access blocked',
+                recommendations: 'Change default credentials, enable firewall'
+            },
+            '192.168.0.1': {
+                type: 'ip',
+                organization: 'Private Network',
+                country: 'Local',
+                city: 'Local Network',
+                isp: 'Local ISP',
+                threat_level: 'None',
+                asn: 'N/A',
+                services: ['Router Administration', 'Local DNS'],
+                location: 'Your Local Network',
+                reputation: 'Safe',
+                usage: 'Alternative common router IP'
+            },
+
+            // Localhost and Special
+            '127.0.0.1': {
+                type: 'ip',
+                organization: 'Localhost',
+                country: 'Local',
+                city: 'Local Machine',
+                isp: 'System',
+                threat_level: 'None',
+                asn: 'N/A',
+                services: ['Local Services', 'Development', 'Testing'],
+                location: 'This Computer',
+                reputation: 'Safe',
+                ports_open: 'All local ports',
+                usage: 'Loopback address for local machine',
+                security_analysis: 'Internal only, cannot be accessed from network',
+                recommendations: 'Standard system address, no security concerns'
+            },
+
+            // Quad9 DNS
+            '9.9.9.9': {
+                type: 'ip',
+                organization: 'Quad9 Foundation',
+                country: 'Switzerland',
+                city: 'Zurich',
+                isp: 'Quad9',
+                threat_level: 'Low',
+                asn: 'AS19281',
+                services: ['Secure DNS', 'Threat Blocking'],
+                location: 'Zurich, Switzerland',
+                reputation: 'Excellent',
+                usage: 'Security-focused DNS with threat intelligence'
+            },
+
+            // OpenDNS
+            '208.67.222.222': {
+                type: 'ip',
+                organization: 'Cisco OpenDNS',
+                country: 'United States',
+                city: 'San Francisco',
+                isp: 'Cisco',
+                threat_level: 'Low',
+                asn: 'AS36692',
+                services: ['Public DNS', 'Content Filtering'],
+                location: 'California, USA',
+                reputation: 'Excellent',
+                usage: 'Family-friendly DNS with filtering options'
+            },
+
+            // Malicious IP Examples (for training)
+            '185.130.44.108': {
+                type: 'ip',
+                organization: 'Unknown - Suspicious',
+                country: 'Russia',
+                city: 'Moscow',
+                isp: 'Unknown',
+                threat_level: 'High',
+                asn: 'AS12389',
+                services: ['Malware C&C', 'Phishing'],
+                location: 'Moscow, Russia',
+                reputation: 'Malicious',
+                threat_analysis: 'Known malware command and control server',
+                recommendations: 'Block immediately, reported in threat databases'
+            },
+
+            // Corporate Examples
+            '17.253.144.10': {
+                type: 'ip',
+                organization: 'Apple Inc.',
+                country: 'United States',
+                city: 'Cupertino',
+                isp: 'Apple',
+                threat_level: 'Low',
+                asn: 'AS714',
+                services: ['iCloud', 'Apple Services', 'APNS'],
+                location: 'California, USA',
+                reputation: 'Excellent',
+                usage: 'Apple infrastructure services'
+            },
+
+            // Educational
+            '8.26.56.26': {
+                type: 'ip',
+                organization: 'Comodo Security',
+                country: 'United States',
+                city: 'Clifton',
+                isp: 'Comodo',
+                threat_level: 'Low',
+                asn: 'AS13768',
+                services: ['Secure DNS', 'SSL Services'],
+                location: 'New Jersey, USA',
+                reputation: 'Good',
+                usage: 'Comodo Secure DNS server'
+            },
+
+            // APIPA Range
+            '169.254.1.1': {
+                type: 'ip',
+                organization: 'Automatic Private IP',
+                country: 'Local',
+                city: 'Local Network',
+                isp: 'System',
+                threat_level: 'None',
+                asn: 'N/A',
+                services: ['Auto-configuration', 'Zeroconf'],
+                location: 'Local Network',
+                reputation: 'Safe',
+                usage: 'Automatic IP when DHCP fails'
+            },
+
+            // Special Addresses
+            '0.0.0.0': {
+                type: 'ip',
+                organization: 'Special Address',
+                country: 'N/A',
+                city: 'N/A',
+                isp: 'System',
+                threat_level: 'None',
+                asn: 'N/A',
+                services: ['Default Route', 'All Interfaces'],
+                location: 'Non-routable',
+                reputation: 'Safe',
+                usage: 'Represents all IPv4 addresses'
+            },
+
+            // More Router IPs
+            '10.0.0.1': {
+                type: 'ip',
+                organization: 'Private Network',
+                country: 'Local',
+                city: 'Local Network',
+                isp: 'Local ISP',
+                threat_level: 'None',
+                asn: 'N/A',
+                services: ['Router Admin', 'Business Network'],
+                location: 'Local Network',
+                reputation: 'Safe',
+                usage: 'Common in business networks'
+            },
+
+            // Mobile Carrier IPs
+            '10.200.0.1': {
+                type: 'ip',
+                organization: 'Verizon Wireless',
+                country: 'United States',
+                city: 'National',
+                isp: 'Verizon',
+                threat_level: 'Low',
+                asn: 'AS701',
+                services: ['Mobile Data', 'LTE Network'],
+                location: 'USA Mobile Network',
+                reputation: 'Good',
+                usage: 'Verizon LTE network infrastructure'
+            }
+        };
+
+        // Famous Websites Database
+        const websiteDatabase = {
+            // Search Engines
+            'google.com': {
+                type: 'website',
+                name: 'Google',
+                ip_address: '142.250.191.206',
+                organization: 'Google LLC',
+                category: 'Search Engine',
+                alexa_rank: 1,
+                security: 'Excellent',
+                ssl_grade: 'A+',
+                technologies: ['Google Infrastructure', 'Borg', 'gRPC'],
+                founded: 1998,
+                traffic: '5.6B+ monthly visits',
+                description: 'World\'s most popular search engine and technology company',
+                services: ['Search', 'Gmail', 'YouTube', 'Google Cloud'],
+                threat_level: 'Low'
+            },
+            'youtube.com': {
+                type: 'website',
+                name: 'YouTube',
+                ip_address: '142.250.191.174',
+                organization: 'Google LLC',
+                category: 'Video Streaming',
+                alexa_rank: 2,
+                security: 'Excellent',
+                ssl_grade: 'A+',
+                technologies: ['VP9 Codec', 'Google Infrastructure', 'QUIC'],
+                founded: 2005,
+                traffic: '2B+ monthly users',
+                description: 'Largest video sharing platform worldwide',
+                services: ['Video Streaming', 'YouTube Music', 'YouTube TV'],
+                threat_level: 'Low'
+            },
+
+            // Social Media
+            'facebook.com': {
+                type: 'website',
+                name: 'Facebook',
+                ip_address: '31.13.92.36',
+                organization: 'Meta Platforms Inc.',
+                category: 'Social Media',
+                alexa_rank: 3,
+                security: 'Good',
+                ssl_grade: 'A',
+                technologies: ['React', 'GraphQL', 'HHVM'],
+                founded: 2004,
+                traffic: '2.9B+ monthly active users',
+                description: 'Largest social networking platform',
+                services: ['Social Network', 'Messenger', 'Marketplace'],
+                threat_level: 'Low'
+            },
+
+            // Technology
+            'github.com': {
+                type: 'website',
+                name: 'GitHub',
+                ip_address: '140.82.121.4',
+                organization: 'Microsoft Corporation',
+                category: 'Development Platform',
+                alexa_rank: 65,
+                security: 'Excellent',
+                ssl_grade: 'A+',
+                technologies: ['Ruby on Rails', 'Git', 'Kubernetes'],
+                founded: 2008,
+                traffic: '100M+ developers',
+                description: 'Largest code hosting platform for version control',
+                services: ['Git Repository', 'CI/CD', 'Project Management'],
+                threat_level: 'Low'
+            },
+
+            // E-commerce
+            'amazon.com': {
+                type: 'website',
+                name: 'Amazon',
+                ip_address: '52.94.236.248',
+                organization: 'Amazon.com Inc.',
+                category: 'E-commerce',
+                alexa_rank: 12,
+                security: 'Excellent',
+                ssl_grade: 'A+',
+                technologies: ['AWS', 'DynamoDB', 'React'],
+                founded: 1994,
+                traffic: '2.4B+ monthly visits',
+                description: 'Largest e-commerce and cloud computing company',
+                services: ['Online Retail', 'AWS', 'Prime Video'],
+                threat_level: 'Low'
+            },
+
+            // Entertainment
+            'netflix.com': {
+                type: 'website',
+                name: 'Netflix',
+                ip_address: '52.32.111.123',
+                organization: 'Netflix Inc.',
+                category: 'Streaming Service',
+                alexa_rank: 15,
+                security: 'Excellent',
+                ssl_grade: 'A+',
+                technologies: ['AWS', 'React', 'Zuul'],
+                founded: 1997,
+                traffic: '230M+ subscribers',
+                description: 'Leading streaming entertainment service',
+                services: ['Video Streaming', 'Original Content'],
+                threat_level: 'Low'
+            },
+
+            // News & Information
+            'wikipedia.org': {
+                type: 'website',
+                name: 'Wikipedia',
+                ip_address: '208.80.154.224',
+                organization: 'Wikimedia Foundation',
+                category: 'Online Encyclopedia',
+                alexa_rank: 7,
+                security: 'Good',
+                ssl_grade: 'A',
+                technologies: ['PHP', 'MySQL', 'Varnish'],
+                founded: 2001,
+                traffic: '1.5B+ monthly visits',
+                description: 'Free, open-content online encyclopedia',
+                services: ['Knowledge Base', 'Wikimedia Projects'],
+                threat_level: 'Low'
+            }
+        };
+
+        // Blocked URLs Storage
+        let blockedURLs = JSON.parse(localStorage.getItem('blockedURLs')) || [];
+
+        // DOM Elements
+        const tabs = document.querySelectorAll('.tab');
+        const searchInput = document.querySelector('.search-input');
+        const searchBtn = document.querySelector('.search-btn');
+        const resultsSection = document.getElementById('resultsSection');
+        const ipTrainingGrid = document.getElementById('ipTrainingGrid');
+        const websiteTrainingGrid = document.getElementById('websiteTrainingGrid');
+        const blockedList = document.getElementById('blockedList');
+
+        let currentTab = 'ip';
+        let currentResult = null;
+
+        // Tab Switching
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabName = tab.getAttribute('data-tab');
+                
+                // Update tabs
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                // Update tab contents
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                document.getElementById(tabName + 'Tab').classList.add('active');
+                
+                // Update current tab
+                currentTab = tabName;
+                updateSearchPlaceholder();
+                clearResults();
+
+                if (tabName === 'reports') {
+                    displayBlockedURLs();
+                }
+            });
+        });
+
+        function updateSearchPlaceholder() {
+            const placeholder = currentTab === 'ip' 
+                ? 'Enter IP address (e.g., 8.8.8.8, 192.168.1.1)...'
+                : 'Enter website domain (e.g., google.com, github.com)...';
+            searchInput.placeholder = placeholder;
+            searchInput.value = '';
+        }
+
+        function clearResults() {
+            resultsSection.innerHTML = '';
+        }
+
+        // Load Training Data
+        function loadTrainingData() {
+            // Load IP Training Cards
+            ipTrainingGrid.innerHTML = '';
+            Object.keys(ipTrainingDatabase).forEach(ip => {
+                const ipData = ipTrainingDatabase[ip];
+                const card = document.createElement('div');
+                card.className = 'training-card ip';
+                card.innerHTML = `
+                    <div class="training-name">${ip}</div>
+                    <div class="training-desc">${ipData.organization} - ${ipData.services[0]}</div>
+                    <div style="font-size: 0.8rem; color: #888; margin-top: 5px;">${ipData.country} • ${ipData.threat_level} Risk</div>
+                `;
+                card.addEventListener('click', () => {
+                    searchInput.value = ip;
+                    analyzeIPAddress(ip);
+                });
+                ipTrainingGrid.appendChild(card);
+            });
+
+            // Load Website Training Cards
+            websiteTrainingGrid.innerHTML = '';
+            Object.keys(websiteDatabase).forEach(domain => {
+                const siteData = websiteDatabase[domain];
+                const card = document.createElement('div');
+                card.className = 'training-card website';
+                card.innerHTML = `
+                    <div class="training-name">${domain}</div>
+                    <div class="training-desc">${siteData.name} - ${siteData.category}</div>
+                    <div style="font-size: 0.8rem; color: #888; margin-top: 5px;">Alexa Rank: ${siteData.alexa_rank} • ${siteData.security} Security</div>
+                `;
+                card.addEventListener('click', () => {
+                    searchInput.value = domain;
+                    analyzeWebsite(domain);
+                });
+                websiteTrainingGrid.appendChild(card);
+            });
+        }
+
+        // Analysis Functions
+        function performSearch() {
+            const query = searchInput.value.trim();
+            if (!query) return;
+
+            if (currentTab === 'ip') {
+                analyzeIPAddress(query);
+            } else {
+                analyzeWebsite(query);
+            }
+        }
+
+        function analyzeIPAddress(ip) {
+            showLoading(`Analyzing IP address: ${ip}`);
+            
+            setTimeout(() => {
+                if (!isValidIP(ip)) {
+                    showError(`Invalid IP address format: ${ip}`);
+                    return;
+                }
+
+                const result = ipTrainingDatabase[ip] || analyzeUnknownIP(ip);
+                currentResult = { type: 'ip', data: result, query: ip };
+                displayIPResult(ip, result);
+            }, 1000);
+        }
+
+        function analyzeWebsite(domain) {
+            showLoading(`Analyzing website: ${domain}`);
+            
+            setTimeout(() => {
+                const result = websiteDatabase[domain.toLowerCase()];
+                if (result) {
+                    currentResult = { type: 'website', data: result, query: domain };
+                    displayWebsiteResult(domain, result);
+                } else {
+                    showError(`Website ${domain} not found in our database`);
+                }
+            }, 1000);
+        }
+
+        function isValidIP(ip) {
+            const ipRegex = /^(\d{1,3}\.){3}\d{1,3}$/;
+            if (!ipRegex.test(ip)) return false;
+            
+            const parts = ip.split('.');
+            return parts.every(part => {
+                const num = parseInt(part, 10);
+                return num >= 0 && num <= 255;
+            });
+        }
+
+        function analyzeUnknownIP(ip) {
+            const firstOctet = parseInt(ip.split('.')[0]);
+            let type, threat_level, organization;
+
+            if (ip === '0.0.0.0') {
+                type = 'Special';
+                threat_level = 'None';
+                organization = 'Default Route';
+            } else if (firstOctet === 10) {
+                type = 'Private';
+                threat_level = 'None';
+                organization = 'Private Network (Class A)';
+            } else if (firstOctet === 172 && parseInt(ip.split('.')[1]) >= 16 && parseInt(ip.split('.')[1]) <= 31) {
+                type = 'Private';
+                threat_level = 'None';
+                organization = 'Private Network (Class B)';
+            } else if (firstOctet === 192 && parseInt(ip.split('.')[1]) === 168) {
+                type = 'Private';
+                threat_level = 'None';
+                organization = 'Private Network (Class C)';
+            } else if (firstOctet >= 224 && firstOctet <= 239) {
+                type = 'Multicast';
+                threat_level = 'Low';
+                organization = 'Multicast Address';
+            } else if (firstOctet >= 240) {
+                type = 'Reserved';
+                threat_level = 'Low';
+                organization = 'Reserved Address';
+            } else {
+                type = 'Public';
+                threat_level = 'Unknown';
+                organization = 'Unknown Organization';
+            }
+
+            return {
+                type: 'ip',
+                organization: organization,
+                country: 'Unknown',
+                city: 'Unknown',
+                isp: 'Unknown',
+                type: type,
+                threat_level: threat_level,
+                asn: 'Unknown',
+                services: ['Unknown Services'],
+                location: 'Unknown',
+                reputation: 'Unknown',
+                usage: 'Not in training database'
+            };
+        }
+
+        // Report and Block Functions
+        function showReportForm() {
+            if (!currentResult) return;
+
+            const reportHTML = `
+                <div class="report-section">
+                    <h3>🚨 Report Malicious URL</h3>
+                    <p>Reporting: <strong>${currentResult.query}</strong></p>
+                    
+                    <div class="report-form">
+                        <div class="form-group">
+                            <label class="form-label">Threat Type:</label>
+                            <select class="form-select" id="threatType">
+                                <option value="phishing">Phishing</option>
+                                <option value="malware">Malware Distribution</option>
+                                <option value="scam">Scam/Fraud</option>
+                                <option value="spam">Spam</option>
+                                <option value="suspicious">Suspicious Activity</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Severity Level:</label>
+                            <select class="form-select" id="severityLevel">
+                                <option value="low">Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="high">High</option>
+                                <option value="critical">Critical</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Additional Details:</label>
+                            <textarea class="form-textarea" id="reportDetails" placeholder="Describe why you believe this URL is malicious..."></textarea>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button class="submit-btn" onclick="submitReport()">Submit Report</button>
+                            <button class="cancel-btn" onclick="hideReportForm()">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Remove existing report form if any
+            const existingForm = document.querySelector('.report-section');
+            if (existingForm) {
+                existingForm.remove();
+            }
+
+            // Add report form to results
+            const resultCard = document.querySelector('.result-card');
+            if (resultCard) {
+                resultCard.insertAdjacentHTML('beforeend', reportHTML);
+            }
+        }
+
+        function hideReportForm() {
+            const reportForm = document.querySelector('.report-section');
+            if (reportForm) {
+                reportForm.remove();
+            }
+        }
+
+        function submitReport() {
+            const threatType = document.getElementById('threatType').value;
+            const severityLevel = document.getElementById('severityLevel').value;
+            const reportDetails = document.getElementById('reportDetails').value;
+
+            if (!reportDetails.trim()) {
+                alert('Please provide details about why this URL is malicious.');
+                return;
+            }
+
+            const report = {
+                url: currentResult.query,
+                type: currentResult.type,
+                threatType: threatType,
+                severity: severityLevel,
+                details: reportDetails,
+                timestamp: new Date().toISOString(),
+                status: 'reported'
+            };
+
+            // Check if already blocked
+            const isAlreadyBlocked = blockedURLs.some(item => item.url === currentResult.query);
+            
+            if (!isAlreadyBlocked) {
+                blockedURLs.push(report);
+                localStorage.setItem('blockedURLs', JSON.stringify(blockedURLs));
+            }
+
+            // Show success message
+            alert(`✅ URL "${currentResult.query}" has been reported as malicious and added to the blocked list.`);
+            
+            // Hide report form
+            hideReportForm();
+            
+            // Update the result display to show blocked status
+            updateResultWithBlockedStatus();
+        }
+
+        function blockURL() {
+            if (!currentResult) return;
+
+            const report = {
+                url: currentResult.query,
+                type: currentResult.type,
+                threatType: 'manual_block',
+                severity: 'high',
+                details: 'Manually blocked by user',
+                timestamp: new Date().toISOString(),
+                status: 'blocked'
+            };
+
+            // Check if already blocked
+            const isAlreadyBlocked = blockedURLs.some(item => item.url === currentResult.query);
+            
+            if (!isAlreadyBlocked) {
+                blockedURLs.push(report);
+                localStorage.setItem('blockedURLs', JSON.stringify(blockedURLs));
+            }
+
+            alert(`🚫 URL "${currentResult.query}" has been blocked.`);
+            updateResultWithBlockedStatus();
+        }
+
+        function updateResultWithBlockedStatus() {
+            const isBlocked = blockedURLs.some(item => item.url === currentResult.query);
+            
+            if (isBlocked) {
+                const blockedBadge = `<span class="security-badge badge-high" style="margin-left: 10px;">🚫 BLOCKED</span>`;
+                
+                // Update the header to show blocked status
+                const header = document.querySelector('.result-header');
+                if (header) {
+                    const existingBadge = header.querySelector('.blocked-badge');
+                    if (!existingBadge) {
+                        header.querySelector('div').innerHTML += blockedBadge;
+                    }
+                }
+
+                // Remove report and block buttons
+                const reportSection = document.querySelector('.report-section');
+                if (reportSection) {
+                    reportSection.remove();
+                }
+            }
+        }
+
+        function displayBlockedURLs() {
+            blockedList.innerHTML = '';
+            
+            if (blockedURLs.length === 0) {
+                blockedList.innerHTML = '<p>No URLs have been reported or blocked yet.</p>';
+                return;
+            }
+
+            blockedURLs.forEach((item, index) => {
+                const blockedItem = document.createElement('div');
+                blockedItem.className = 'blocked-item';
+                blockedItem.innerHTML = `
+                    <div style="display: flex; justify-content: between; align-items: center;">
+                        <div style="flex: 1;">
+                            <strong>${item.url}</strong> (${item.type})
+                            <div style="font-size: 0.9rem; color: #666;">
+                                Threat: ${item.threatType} • Severity: ${item.severity}
+                            </div>
+                            <div style="font-size: 0.8rem; color: #888;">
+                                Reported: ${new Date(item.timestamp).toLocaleString()}
+                            </div>
+                            ${item.details ? `<div style="margin-top: 5px;">${item.details}</div>` : ''}
+                        </div>
+                        <button class="cancel-btn" onclick="removeBlockedURL(${index})" style="margin-left: 10px;">Remove</button>
+                    </div>
+                `;
+                blockedList.appendChild(blockedItem);
+            });
+        }
+
+        function removeBlockedURL(index) {
+            if (confirm('Are you sure you want to remove this URL from the blocked list?')) {
+                blockedURLs.splice(index, 1);
+                localStorage.setItem('blockedURLs', JSON.stringify(blockedURLs));
+                displayBlockedURLs();
+            }
+        }
+
+        function downloadCSV() {
+            if (blockedURLs.length === 0) {
+                alert('No blocked URLs to download.');
+                return;
+            }
+
+            const headers = ['URL', 'Type', 'Threat Type', 'Severity', 'Details', 'Timestamp', 'Status'];
+            const csvData = blockedURLs.map(item => [
+                item.url,
+                item.type,
+                item.threatType,
+                item.severity,
+                `"${item.details.replace(/"/g, '""')}"`,
+                item.timestamp,
+                item.status
+            ]);
+
+            const csvContent = [
+                headers.join(','),
+                ...csvData.map(row => row.join(','))
+            ].join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'blocked_urls.csv';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
+
+        // Display Functions
+        function showLoading(message) {
+            resultsSection.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    ${message}
+                </div>
+            `;
+        }
+
+        function showError(message) {
+            resultsSection.innerHTML = `
+                <div class="result-card">
+                    <div style="text-align: center; color: #dc3545;">
+                        <h3>❌ Error</h3>
+                        <p>${message}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function displayIPResult(ip, data) {
+            const threatBadge = getThreatBadge(data.threat_level);
+            const isBlocked = blockedURLs.some(item => item.url === ip);
+            const blockedBadge = isBlocked ? '<span class="security-badge badge-high" style="margin-left: 10px;">🚫 BLOCKED</span>' : '';
+            
+            resultsSection.innerHTML = `
+                <div class="result-card ip-card">
+                    <div class="result-header">
+                        <div class="ip-address">${ip}</div>
+                        <div>
+                            <div style="font-size: 1.5rem; font-weight: bold; color: #333;">
+                                ${data.organization} ${threatBadge} ${blockedBadge}
+                            </div>
+                            <div style="color: #666; margin-top: 5px;">${data.type} Address • ${data.country}</div>
+                        </div>
+                    </div>
+
+                    ${data.threat_analysis ? `
+                    <div class="threat-analysis">
+                        <strong>🚨 Threat Analysis:</strong> ${data.threat_analysis}
+                    </div>
+                    ` : ''}
+
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">🏢 Organization</div>
+                            <div class="info-value">${data.organization}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">🌍 Country</div>
+                            <div class="info-value">${data.country}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">🏙️ City</div>
+                            <div class="info-value">${data.city}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">📡 ISP</div>
+                            <div class="info-value">${data.isp}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">🔧 IP Type</div>
+                            <div class="info-value">${data.type}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">🛡️ Threat Level</div>
+                            <div class="info-value">${data.threat_level}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">🔗 ASN</div>
+                            <div class="info-value">${data.asn}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">⭐ Reputation</div>
+                            <div class="info-value">${data.reputation || 'Unknown'}</div>
+                        </div>
+                    </div>
+
+                    <div class="info-item" style="grid-column: 1 / -1;">
+                        <div class="info-label">🔍 Services Detected</div>
+                        <div class="info-value">${data.services.join(', ')}</div>
+                    </div>
+
+                    <div class="info-item" style="grid-column: 1 / -1;">
+                        <div class="info-label">📝 Usage Description</div>
+                        <div class="info-value">${data.usage || 'General network address'}</div>
+                    </div>
+
+                    ${data.recommendations ? `
+                    <div class="info-item" style="grid-column: 1 / -1; background: #e7f3ff; border-left: 4px solid #007bff;">
+                        <div class="info-label">💡 Security Recommendations</div>
+                        <div class="info-value">${data.recommendations}</div>
+                    </div>
+                    ` : ''}
+
+                    ${!isBlocked ? `
+                    <div style="margin-top: 20px; display: flex; gap: 10px;">
+                        <button class="report-btn" onclick="showReportForm()">🚨 Report Malicious</button>
+                        <button class="block-btn" onclick="blockURL()">🚫 Block URL</button>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        function displayWebsiteResult(domain, data) {
+            const threatBadge = getThreatBadge(data.threat_level);
+            const isBlocked = blockedURLs.some(item => item.url === domain);
+            const blockedBadge = isBlocked ? '<span class="security-badge badge-high" style="margin-left: 10px;">🚫 BLOCKED</span>' : '';
+            
+            resultsSection.innerHTML = `
+                <div class="result-card website-card">
+                    <div class="result-header">
+                        <div class="website-name">${data.name}</div>
+                        <div>
+                            <div style="font-size: 1.5rem; font-weight: bold; color: #333;">
+                                ${data.category} ${threatBadge} ${blockedBadge}
+                            </div>
+                            <div style="color: #666; margin-top: 5px;">${domain} • IP: ${data.ip_address}</div>
+                        </div>
+                    </div>
+
+                    <div class="website-stats">
+                        <div class="stat-item">
+                            <div class="stat-value">#${data.alexa_rank}</div>
+                            <div class="stat-label">Global Rank</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${data.ssl_grade}</div>
+                            <div class="stat-label">SSL Grade</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${data.security}</div>
+                            <div class="stat-label">Security</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${data.founded}</div>
+                            <div class="stat-label">Founded</div>
+                        </div>
+                    </div>
+
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">🏢 Organization</div>
+                            <div class="info-value">${data.organization}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">🌐 Category</div>
+                            <div class="info-value">${data.category}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">🔗 IP Address</div>
+                            <div class="info-value">${data.ip_address}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">🛡️ Security</div>
+                            <div class="info-value">${data.security}</div>
+                        </div>
+                    </div>
+
+                    <div class="info-item" style="grid-column: 1 / -1;">
+                        <div class="info-label">📝 Description</div>
+                        <div class="info-value">${data.description}</div>
+                    </div>
+
+                    <div class="info-item" style="grid-column: 1 / -1;">
+                        <div class="info-label">🚀 Services</div>
+                        <div class="info-value">${data.services.join(', ')}</div>
+                    </div>
+
+                    <div class="info-item" style="grid-column: 1 / -1;">
+                        <div class="info-label">💻 Technologies</div>
+                        <div class="info-value">${data.technologies.join(', ')}</div>
+                    </div>
+
+                    <div class="info-item" style="grid-column: 1 / -1;">
+                        <div class="info-label">📊 Traffic</div>
+                        <div class="info-value">${data.traffic}</div>
+                    </div>
+
+                    ${!isBlocked ? `
+                    <div style="margin-top: 20px; display: flex; gap: 10px;">
+                        <button class="report-btn" onclick="showReportForm()">🚨 Report Malicious</button>
+                        <button class="block-btn" onclick="blockURL()">🚫 Block URL</button>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        function getThreatBadge(level) {
+            const levelMap = {
+                'None': ['No Risk', 'badge-safe'],
+                'Low': ['Low Risk', 'badge-low'],
+                'Medium': ['Medium Risk', 'badge-medium'],
+                'High': ['High Risk', 'badge-high'],
+                'Unknown': ['Unknown', 'badge-medium']
+            };
+            
+            const [text, className] = levelMap[level] || ['Unknown', 'badge-medium'];
+            return `<span class="security-badge ${className}">${text}</span>`;
+        }
+
+        // Event Listeners
+        searchBtn.addEventListener('click', performSearch);
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') performSearch();
+        });
+
+        // Initialize
+        updateSearchPlaceholder();
+        loadTrainingData();
+        
+        // Show example on load
+        setTimeout(() => {
+            analyzeIPAddress('8.8.8.8');
+        }, 500);
+    </script>
+</body>
+</html>
